@@ -960,6 +960,13 @@ FEATURES = {
     # .. toggle_target_removal_date: None
     # .. toggle_tickets: 'https://openedx.atlassian.net/browse/MST-1348'
     'ENABLE_INTEGRITY_SIGNATURE': False,
+
+    # .. setting_name: FEATURES['ENABLE_NEW_BULK_EMAIL_EXPERIENCE']
+    # .. setting_default: False
+    # .. setting_description: When true, replaces the bulk email tool found on the
+    #   instructor dashboard with a link to the new communications MFE version instead.
+    #   Stting the tool to false will leave the old bulk email tool experience in place.
+    'ENABLE_NEW_BULK_EMAIL_EXPERIENCE': False,
 }
 
 # Specifies extra XBlock fields that should available when requested via the Course Blocks API
