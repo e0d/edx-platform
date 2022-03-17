@@ -86,34 +86,36 @@ def serialize_user_info(user, user_social_auths=None):
     return user_info
 
 
-def serialize_sso_records(user_social_auths):
+def serialize_sso_records(user_social_auths, user_social_auths_history):
     """
     Serialize user social auth model object
     """
     sso_records = []
     for user_social_auth in user_social_auths:
+        history = serialize_sso_history(
+            user_social_auth,
+            user_social_auths_history
+        )
         sso_records.append({
             'provider': user_social_auth.provider,
             'uid': user_social_auth.uid,
             'created': user_social_auth.created,
             'modified': user_social_auth.modified,
             'extraData': json.dumps(user_social_auth.extra_data),
+            'history': history,
         })
     return sso_records
 
 
-def serialize_sso_history_records(user_social_auths):
-    """
-    Serialize user social auth history model object
-    """
-    sso_records = []
-    for user_social_auth in user_social_auths:
-        sso_records.append({
-            'uid': user_social_auth.uid,
-            'provider': user_social_auth.provider,
-            'created': user_social_auth.created,
-            'modified': user_social_auth.modified,
-            'extraData': json.dumps(user_social_auth.extra_data),
-            'history_date': user_social_auth.history_date
-        })
-    return sso_records
+def serialize_sso_history(user_social_auth, user_social_auths_history):
+    history = []
+    for history in user_social_auths_history:
+        if history.provider == user_social_auth.provider:
+            history.append({
+                'uid': history.uid,
+                'provider': history.provider,
+                'created': history.created, 'modified': history.modified,
+                'extraData': json.dumps(history.extra_data),
+                'history_date': history.history_date
+            })
+    return history

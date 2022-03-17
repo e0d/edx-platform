@@ -12,13 +12,41 @@ from common.djangoapps.util.json_request import JsonResponse
 from lms.djangoapps.support.decorators import require_support_permission
 from lms.djangoapps.support.serializers import (
     serialize_sso_records,
-    serialize_sso_history_records,
 )
 
 
 class SsoView(GenericAPIView):
     """
     Returns a list of SSO records for a given user.
+    Sample response: 
+    [
+        {
+            "provider": "tpa-saml",
+            "uid": "new-channel:testuser",
+            "created": "2022-03-02T04:41:33.145Z",
+            "modified": "2022-03-15T11:28:17.809Z",
+            "extraData": "{}",
+            "history": 
+            [
+                {
+                    "uid": "new-channel:testuser",
+                    "provider": "tpa-saml",
+                    "created": "2022-03-02T04:41:33.145Z",
+                    "modified": "2022-03-15T11:28:17.809Z",
+                    "extraData": "{}",
+                    "history_date": "2022-03-15T11:28:17.832Z"
+                },
+                {
+                    "uid": "default-channel:testuser",
+                    "provider": "tpa-saml",
+                    "created": "2022-03-02T04:41:33.145Z",
+                    "modified": "2022-03-10T12:28:32.720Z",
+                    "extraData": "{}",
+                    "history_date": "2022-03-15T11:12:02.420Z"
+                }
+            ]
+        }
+    ]
     """
     @method_decorator(require_support_permission)
     def get(self, request, username_or_email):  # lint-amnesty, pylint: disable=missing-function-docstring
@@ -27,20 +55,6 @@ class SsoView(GenericAPIView):
         except User.DoesNotExist:
             return JsonResponse([])
         user_social_auths = UserSocialAuth.objects.filter(user=user)
-        sso_records = serialize_sso_records(user_social_auths)
-        return JsonResponse(sso_records)
-
-
-class SsoHistoryView(GenericAPIView):
-    """
-    Returns a list of SSO records for a given user.
-    """
-    @method_decorator(require_support_permission)
-    def get(self, request, username_or_email):  # lint-amnesty, pylint: disable=missing-function-docstring
-        try:
-            user = User.objects.get(Q(username=username_or_email) | Q(email=username_or_email))
-        except User.DoesNotExist:
-            return JsonResponse([])
-        user_social_auths = UserSocialAuth.history.filter(user=user)
-        sso_records = serialize_sso_history_records(user_social_auths)
+        user_social_auths_history = UserSocialAuth.history.filter(user=user)
+        sso_records = serialize_sso_records(user_social_auths, user_social_auths_history)
         return JsonResponse(sso_records)
